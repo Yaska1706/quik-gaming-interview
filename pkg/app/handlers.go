@@ -46,7 +46,8 @@ func (s *Server) CreditHandler() gin.HandlerFunc {
 
 		response := map[string]string{
 			"status": "success",
-			"data":   "credit created",
+			"data":   "credit successful",
+			"amount": newcreditrequest.Amount,
 		}
 
 		c.JSON(http.StatusOK, response)
@@ -76,6 +77,7 @@ func (s *Server) DebitHandler() gin.HandlerFunc {
 		response := map[string]string{
 			"status": "success",
 			"data":   "debit created",
+			"amount": newdebitrequest.Amount,
 		}
 
 		c.JSON(http.StatusOK, response)
