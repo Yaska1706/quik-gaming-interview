@@ -1,42 +1,45 @@
 package repository
 
-import "strconv"
+import (
+	"fmt"
 
-type WalletRepository struct{}
+	"github.com/jinzhu/gorm"
+	"github.com/yaska1706/quik-gaming-interview/pkg/api"
+)
 
-var walletRepository *WalletRepository
+type Storage interface {
+	CreateDebit(wallet api.Wallet) error
+	CreateCredit(wallet api.Wallet) error
+	GetAllByWalletID(walletid string, wallets []api.Wallet) ([]api.Wallet, error)
+}
 
-func GetWalletRepository() *WalletRepository {
-	if walletRepository == nil {
-		walletRepository = &WalletRepository{}
+type storage struct {
+	db *gorm.DB
+}
+
+func NewStorage(db *gorm.DB) Storage {
+	return &storage{db: db}
+}
+
+func (s *storage) CreateDebit(wallet api.Wallet) error {
+	if wallet := s.db.Create(&wallet); wallet.Error != nil {
+		return fmt.Errorf(wallet.Error.Error())
 	}
-	return walletRepository
+	return nil
 }
-func (r *WalletRepository) Get(id string) (*Wallet, error) {
-	var wallet Wallet
-	where := Wallet{}
-	where.ID, _ = strconv.ParseUint(id, 10, 64)
-	_, err := First(&where, &wallet, []string{})
-	if err != nil {
-		return nil, err
+
+func (s *storage) CreateCredit(wallet api.Wallet) error {
+	if wallet := s.db.Create(&wallet); wallet.Error != nil {
+		return fmt.Errorf(wallet.Error.Error())
 	}
-	return &wallet, err
+	return nil
 }
 
-func (r *WalletRepository) All() (*[]Wallet, error) {
-	var tasks []Wallet
-	err := Find(&Wallet{}, &tasks, []string{}, "id asc")
-	return &tasks, err
-}
+func (s *storage) GetAllByWalletID(walletid string, wallets []api.Wallet) ([]api.Wallet, error) {
 
-func (r *WalletRepository) Query(q *Wallet) (*[]Wallet, error) {
-	var tasks []Wallet
-	err := Find(&q, &tasks, []string{}, "id asc")
-	return &tasks, err
-}
+	if wallet := s.db.Find(&wallets, walletid); wallet.Error != nil {
+		return nil, fmt.Errorf(wallet.Error.Error())
+	}
 
-func (r *WalletRepository) Add(task *Wallet) error {
-	err := Create(&task)
-	err = Save(&task)
-	return err
+	return wallets, nil
 }
