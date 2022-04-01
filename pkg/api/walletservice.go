@@ -65,7 +65,7 @@ func (w *walletService) AddCredit(walletID string, request CreditWalletRequest) 
 	if err := w.validateAmount(request.Amount); err != nil {
 		return err
 	}
-	if err := w.validatebalnce(walletID, request.Amount); err != nil {
+	if err := w.validatebalance(walletID, request.Amount); err != nil {
 		return err
 	}
 
@@ -146,7 +146,7 @@ func findbalance(credit, debit string) string {
 	return fmt.Sprint(balance)
 }
 
-func (w *walletService) validatebalnce(walletid, amount string) error {
+func (w *walletService) validatebalance(walletid, amount string) error {
 
 	balance, _ := w.GetBalance(walletid)
 	newbalance, err := strconv.ParseFloat(balance, 64)
