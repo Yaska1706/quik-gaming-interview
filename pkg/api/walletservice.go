@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"strconv"
 )
 
 type DebitWalletRequest struct {
@@ -45,8 +46,8 @@ const (
 
 func (w *walletService) AddDebit(walletID string, request DebitWalletRequest) error {
 
-	if request.Amount == "" {
-		return errors.New("debit cannot be blank")
+	if err := w.validateAmount(request.Amount); err != nil {
+		return err
 	}
 
 	newdebit := Wallet{
@@ -63,8 +64,8 @@ func (w *walletService) AddDebit(walletID string, request DebitWalletRequest) er
 
 func (w *walletService) AddCredit(walletID string, request CreditWalletRequest) error {
 
-	if request.Amount == "" {
-		return errors.New("debit cannot be blank")
+	if err := w.validateAmount(request.Amount); err != nil {
+		return err
 	}
 
 	newcredit := Wallet{
@@ -76,5 +77,18 @@ func (w *walletService) AddCredit(walletID string, request CreditWalletRequest) 
 	if err := w.storage.CreateCredit(newcredit); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (w *walletService) validateAmount(amount string) error {
+	if amount == "" {
+		return errors.New("debit cannot be blank")
+	}
+
+	newamount, _ := strconv.ParseFloat(amount, 64)
+	if newamount < 0 {
+		return errors.New("cannot be a negative")
+	}
+
 	return nil
 }
