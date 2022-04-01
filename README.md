@@ -96,7 +96,7 @@ Below are the 3 endpoints to implement, as well as the business rules. Endpoints
 
 ```json
 {
-    "balance": "0"
+    "balance": "1000"
 }
 
 ```
