@@ -17,11 +17,6 @@ type CreditWalletRequest struct {
 	WalletID string `json:"wallet_id"`
 }
 
-type WalletBalane struct {
-	WalletID int `json:"wallet_id"`
-	Balance  int `json:"balance"`
-}
-
 type WalletService interface {
 	AddDebit(walletID string, request DebitWalletRequest) error
 	AddCredit(walletID string, request CreditWalletRequest) error
@@ -68,6 +63,9 @@ func (w *walletService) AddDebit(walletID string, request DebitWalletRequest) er
 func (w *walletService) AddCredit(walletID string, request CreditWalletRequest) error {
 
 	if err := w.validateAmount(request.Amount); err != nil {
+		return err
+	}
+	if err := w.validatebalnce(walletID, request.Amount); err != nil {
 		return err
 	}
 
@@ -143,7 +141,23 @@ func findbalance(credit, debit string) string {
 	newcredit, _ := strconv.ParseFloat(credit, 64)
 	newdebit, _ := strconv.ParseFloat(debit, 64)
 
-	balance := newcredit - newdebit
+	balance := newdebit - newcredit
 
 	return fmt.Sprint(balance)
+}
+
+func (w *walletService) validatebalnce(walletid, amount string) error {
+
+	balance, _ := w.GetBalance(walletid)
+	newbalance, err := strconv.ParseFloat(balance, 64)
+	if err != nil {
+		return err
+	}
+	newamount, _ := strconv.ParseFloat(amount, 64)
+
+	if (newbalance - newamount) < 0 {
+		return errors.New("You have exceeded your amount")
+	}
+	return nil
+
 }
