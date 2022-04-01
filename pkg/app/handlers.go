@@ -83,6 +83,29 @@ func (s *Server) DebitHandler() gin.HandlerFunc {
 	}
 }
 
+func (s *Server) BalanceHandler() gin.HandlerFunc {
+
+	return func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+
+		walletID := c.Param("wallet_id")
+
+		balance, err := s.walletservice.GetBalance(walletID)
+		if err != nil {
+			log.Printf("handler error: %v", err)
+			c.JSON(http.StatusBadRequest, fmt.Sprint(err))
+			return
+		}
+
+		response := map[string]string{
+			"balance": balance,
+		}
+
+		c.JSON(http.StatusOK, response)
+	}
+
+}
+
 func LoggerToFile() gin.HandlerFunc {
 	LOG_FILE := os.Getenv("LOG_FILE")
 	os.Create(LOG_FILE)

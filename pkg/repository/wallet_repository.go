@@ -10,7 +10,7 @@ import (
 type Storage interface {
 	CreateDebit(wallet api.Wallet) error
 	CreateCredit(wallet api.Wallet) error
-	GetAllByWalletID(walletid string, wallets []api.Wallet) ([]api.Wallet, error)
+	GetAllByWalletID(walletid string) ([]api.Wallet, error)
 }
 
 type storage struct {
@@ -35,9 +35,9 @@ func (s *storage) CreateCredit(wallet api.Wallet) error {
 	return nil
 }
 
-func (s *storage) GetAllByWalletID(walletid string, wallets []api.Wallet) ([]api.Wallet, error) {
-
-	if wallet := s.db.Find(&wallets, walletid); wallet.Error != nil {
+func (s *storage) GetAllByWalletID(walletid string) ([]api.Wallet, error) {
+	var wallets []api.Wallet
+	if wallet := s.db.Where("wallet_id = ?", walletid).Find(&wallets); wallet.Error != nil {
 		return nil, fmt.Errorf(wallet.Error.Error())
 	}
 

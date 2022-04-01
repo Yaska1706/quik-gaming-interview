@@ -11,6 +11,7 @@ func (s *Server) Routes() *gin.Engine {
 		v1.GET("/status", s.ApiStatus())
 		v1.POST("/:wallet_id/credit", s.CreditHandler())
 		v1.POST("/:wallet_id/debit", s.DebitHandler())
+		v1.GET("/:wallet_id/balance", s.BalanceHandler())
 
 	}
 
