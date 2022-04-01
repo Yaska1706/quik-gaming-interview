@@ -23,12 +23,12 @@ func NewServer(router *gin.Engine, walletservice api.WalletService) *Server {
 func (s *Server) Run() error {
 	// run function that initializes the routes
 	r := s.Routes()
+	r.Use(LoggerToFile())
+
 	LISTEN_ADDR := os.Getenv("LISTEN_ADDRESS")
 	LISTEN_PORT := os.Getenv("LISTEN_PORT")
-	// run the server through the router
-	err := r.Run(LISTEN_ADDR + ":" + LISTEN_PORT)
 
-	if err != nil {
+	if err := r.Run(LISTEN_ADDR + ":" + LISTEN_PORT); err != nil {
 		log.Printf("Server - there was an error calling Run on router: %v", err)
 		return err
 	}
