@@ -5,18 +5,21 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"github.com/yaska1706/quik-gaming-interview/pkg/api"
 )
 
 type Server struct {
 	router        *gin.Engine
+	cache         *redis.Client
 	walletservice api.WalletService
 }
 
-func NewServer(router *gin.Engine, walletservice api.WalletService) *Server {
+func NewServer(router *gin.Engine, cache *redis.Client, walletservice api.WalletService) *Server {
 	return &Server{
 		router:        router,
 		walletservice: walletservice,
+		cache:         cache,
 	}
 }
 

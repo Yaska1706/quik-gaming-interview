@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 	"github.com/joho/godotenv"
 	"github.com/yaska1706/quik-gaming-interview/pkg/api"
 	"github.com/yaska1706/quik-gaming-interview/pkg/app"
@@ -33,14 +34,17 @@ func run() error {
 	}
 
 	storage := repository.NewStorage(db)
+	walletService := api.NewWalletService(storage)
 
 	// create router dependency
 	router := gin.Default()
 	router.Use(app.LoggerToFile())
 	router.Use(cors.Default())
 
-	walletService := api.NewWalletService(storage)
-	server := app.NewServer(router, walletService)
+	// setup cache
+	cache := setupRedis()
+
+	server := app.NewServer(router, cache, walletService)
 
 	// start the server
 	if err := server.Run(); err != nil {
@@ -48,4 +52,22 @@ func run() error {
 	}
 
 	return nil
+}
+
+func setupRedis() *redis.Client {
+	REDIS_ADDR := os.Getenv("REDIS_ADDRESS")
+	REDIS_PORT := os.Getenv("REDIS_PORT")
+
+	ADDR := REDIS_ADDR + ":" + REDIS_PORT
+
+	cache := redis.NewClient(&redis.Options{
+		Addr:     ADDR,
+		Password: "",
+		DB:       0,
+	})
+
+	pong, err := cache.Ping().Result()
+	fmt.Println(pong, err)
+	return cache
+
 }

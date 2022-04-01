@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -91,7 +92,6 @@ func (s *Server) BalanceHandler() gin.HandlerFunc {
 		c.Header("Content-Type", "application/json")
 
 		walletID := c.Param("wallet_id")
-
 		balance, err := s.walletservice.GetBalance(walletID)
 		if err != nil {
 			log.Printf("handler error: %v", err)
@@ -103,8 +103,32 @@ func (s *Server) BalanceHandler() gin.HandlerFunc {
 			"balance": balance,
 		}
 
+		response = s.VerifyCache(c, response, walletID)
+
 		c.JSON(http.StatusOK, response)
 	}
+
+}
+
+func (s *Server) VerifyCache(c *gin.Context, response map[string]string, walletID string) map[string]string {
+
+	jsonresponse, _ := json.Marshal(response)
+	if cacheERR := s.cache.Set(walletID, jsonresponse, 10*time.Second).Err(); cacheERR != nil {
+		c.JSON(http.StatusBadRequest, fmt.Sprint(cacheERR))
+		return nil
+	}
+	val, err := s.cache.Get(walletID).Result()
+	if err != nil {
+		c.Next()
+		return nil
+	}
+
+	if err := json.Unmarshal([]byte(val), &response); err != nil {
+		c.JSON(http.StatusBadRequest, fmt.Sprint(err))
+		return nil
+	}
+
+	return response
 
 }
 
