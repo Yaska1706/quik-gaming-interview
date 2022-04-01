@@ -36,6 +36,7 @@ func run() error {
 
 	// create router dependency
 	router := gin.Default()
+	router.Use(app.LoggerToFile())
 	router.Use(cors.Default())
 
 	walletService := api.NewWalletService(storage)

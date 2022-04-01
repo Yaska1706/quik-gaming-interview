@@ -23,7 +23,6 @@ func NewServer(router *gin.Engine, walletservice api.WalletService) *Server {
 func (s *Server) Run() error {
 	// run function that initializes the routes
 	r := s.Routes()
-	r.Use(LoggerToFile())
 
 	LISTEN_ADDR := os.Getenv("LISTEN_ADDRESS")
 	LISTEN_PORT := os.Getenv("LISTEN_PORT")

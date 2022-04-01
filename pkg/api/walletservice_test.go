@@ -21,7 +21,7 @@ func Test_findbalance(t *testing.T) {
 				credit: "400",
 				debit:  "500",
 			},
-			want: "-100",
+			want: "100",
 		},
 	}
 	for _, tt := range tests {
